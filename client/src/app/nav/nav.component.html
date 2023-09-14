@@ -1,0 +1,12 @@
+<mat-toolbar color="primary">
+    <a mat-button routerLink=""><span>RESO-IOT coding task</span></a>
+    <div class="spacer"></div>
+    <button mat-icon-button color="secondary" aria-label="Home" routerLink="/home">
+        <mat-icon>home</mat-icon>
+    </button>
+    <a mat-button *ngIf="userLoggedIn">
+        Welcome, {{profile?.displayName || profile?.mail || profile?.userPrincipalName}}
+    </a>
+    <a mat-button *ngIf="userLoggedIn" (click)="logout()">Log Out</a>
+    <a mat-button *ngIf="!userLoggedIn" (click)="login()">Log In</a>
+</mat-toolbar>

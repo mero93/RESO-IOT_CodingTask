@@ -1,0 +1,66 @@
+<mat-card class=" m-2">
+    <mat-card-content style="text-align: center;" class="py-3"
+        *ngIf="!data">
+        <h2>No records to display</h2>
+    </mat-card-content>
+    <table mat-table [dataSource]="data" class="mat-elevation-z8"
+        *ngIf="data">
+
+        <ng-container matColumnDef="date">
+          <th mat-header-cell *matHeaderCellDef> Date </th>
+          <td mat-cell *matCellDef="let element"> {{element.time | date:'dd/MM/yyyy'}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="sensorId">
+            <th mat-header-cell *matHeaderCellDef> Sensor Id </th>
+            <td mat-cell *matCellDef="let element"> {{element.sensorId}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef> Id </th>
+            <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+          </ng-container>
+      
+        <ng-container matColumnDef="latitude">
+          <th mat-header-cell *matHeaderCellDef> Latitude </th>
+          <td mat-cell *matCellDef="let element"> {{element.latitude}} </td>
+        </ng-container>
+      
+        <ng-container matColumnDef="longitude">
+          <th mat-header-cell *matHeaderCellDef> Longitude </th>
+          <td mat-cell *matCellDef="let element"> {{element.longitude}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="weather">
+            <th mat-header-cell *matHeaderCellDef> Weather </th>
+            <td mat-cell *matCellDef="let element"> {{element.weather | titlecase}} </td>
+          </ng-container>
+      
+        <ng-container matColumnDef="illumination">
+            <th mat-header-cell *matHeaderCellDef> Illumination </th>
+            <td mat-cell *matCellDef="let element"> {{element.illumination}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="temperature">
+            <th mat-header-cell *matHeaderCellDef> Temperature </th>
+            <td mat-cell *matCellDef="let element"> {{element.temperature}} </td>
+        </ng-container>
+          
+        <ng-container matColumnDef="time">
+            <th mat-header-cell *matHeaderCellDef> Time </th>
+            <td mat-cell *matCellDef="let element"> {{element.time | date:'HH:mm:ss'}} </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+</mat-card>
+<div mat-dialog-actions class="d-flex align-cneter justify-content-between">
+    <div></div>
+    <button mat-button (click)="close()">Close Report</button>
+    <span>        
+        copy JSON to clipboard
+        <button mat-icon-button color="primary" (click)="copy()">
+            <mat-icon>file_copy</mat-icon>
+        </button>
+    </span>
+</div>

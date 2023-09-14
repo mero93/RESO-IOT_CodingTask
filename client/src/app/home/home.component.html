@@ -1,0 +1,187 @@
+<div class="d-flex justify-content-center">
+    <mat-card class="col-9 mx-1">
+        <mat-card-content style="text-align: center;" class="py-3"
+            *ngIf="!sensors">
+            <h2>No Sensors added yet</h2>
+        </mat-card-content>
+        <table mat-table [dataSource]="sensors" class="mat-elevation-z8"
+            *ngIf="sensors">
+
+            <ng-container matColumnDef="icon">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <ng-container *ngIf="!element.recording">
+                        <button mat-icon-button color="primary"
+                            aria-label="Play"
+                            (click)="startRecording(element)">
+                            <mat-icon>play_circle_filled</mat-icon>
+                        </button>
+                    </ng-container>
+                    <ng-container *ngIf="element.recording">
+                        <button mat-icon-button color="primary"
+                            aria-label="Stop"
+                            (click)="stopRecording(element)">
+                            <mat-icon>stop</mat-icon>
+                        </button>
+                    </ng-container>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="report">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <button mat-icon-button color="primary"
+                        aria-label="Play"
+                        (click)="getStatisticsById(element.id)">
+                        <mat-icon>list</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="no.">
+              <th mat-header-cell *matHeaderCellDef> No. </th>
+              <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+            </ng-container>
+          
+            <ng-container matColumnDef="latitude">
+              <th mat-header-cell *matHeaderCellDef> Latitude </th>
+              <td mat-cell *matCellDef="let element"> {{element.latitude}} </td>
+            </ng-container>
+          
+            <ng-container matColumnDef="longitude">
+              <th mat-header-cell *matHeaderCellDef> Longitude </th>
+              <td mat-cell *matCellDef="let element"> {{element.longitude}} </td>
+            </ng-container>
+          
+            <ng-container matColumnDef="recordTime">
+              <th mat-header-cell *matHeaderCellDef> Record Time (mins)</th>
+              <td mat-cell *matCellDef="let element">
+                <div>
+                    {{element.recordTimer}}
+                </div>
+                <mat-slider min="0.5" max="60" step="0.5" value="element.recordTimer">
+                    <input matSliderThumb [(ngModel)]="element.recordTimer">
+                </mat-slider>
+            </td>
+            </ng-container>
+
+            <ng-container matColumnDef="totalRecords">
+                <th mat-header-cell *matHeaderCellDef> Nth To Report </th>
+                <td mat-cell *matCellDef="let element">
+                    <div>
+                        {{element.totalRecords}}
+                    </div>
+                    <mat-slider min="1" max="4" step="1" value="4">
+                        <input matSliderThumb [(ngModel)]="element.totalRecords">
+                    </mat-slider>
+                </td>
+            </ng-container>
+            <ng-container matColumnDef="delete">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let element">
+                    <button mat-icon-button color="primary"
+                        aria-label="Delete"
+                        (click)="deleteSensor(element.id)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+          
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>          
+        <br>
+
+        <div class="d-flex mx-2">
+            <a mat-raised-button color="accent" (click)="populateSensors()" class="col-2">
+                Pop Sensors
+            </a>
+            <div class="mx-3 align-cneter">
+                Distance: 
+                <mat-slider min="20" max="150" step="1">
+                    <input matSliderThumb [(ngModel)]="populateDistance">
+                </mat-slider>
+                {{populateDistance}} km
+            </div>
+            <div class="mx-3 align-cneter">
+                    Record: 
+                    <mat-slider min="0.5" max="60" step="0.5">
+                        <input matSliderThumb [(ngModel)]="populateRecordTimer">
+                    </mat-slider>
+                    {{populateRecordTimer}} mins
+            </div>
+            <div class="mx-3 align-cneter">
+                <div>
+                    Report:
+                    <mat-slider min="1" max="4" step="1">
+                        <input matSliderThumb [(ngModel)]="populateTotalRecords">
+                    </mat-slider>
+                    {{populateTotalRecords}}th
+                </div>
+                <div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex m-2">
+            <a mat-raised-button color="accent" (click)="populateRecords()" class="col-2">
+                Pop Records
+            </a>
+            <div class="mx-3 align-cneter">
+                Number of Sensors: 
+                <mat-slider min="1" max="5" step="1">
+                    <input matSliderThumb [(ngModel)]="populateNumberOfSensors">
+                </mat-slider>
+                {{populateNumberOfSensors}}
+            </div>
+            <div class="mx-3 align-cneter">
+                Days:
+                <mat-slider min="1" max="30" step="1">
+                    <input matSliderThumb [(ngModel)]="populateNumberOfDays">
+                </mat-slider>
+                {{populateNumberOfDays}}
+            </div>
+        </div>
+
+        <div class="d-flex m-2">
+            <a mat-raised-button color="accent" (click)="getStatisticsWithinRange()" class="col-2">
+                Statistics Dist
+            </a>
+            <div class="mx-3 align-cneter">
+                Distance:
+                <mat-slider min="20" max="150" step="1">
+                    <input matSliderThumb [(ngModel)]="statisticsDistance">
+                </mat-slider>
+                {{statisticsDistance}} km
+            </div>
+            <div class="mx-3 align-cneter">
+                Days: 
+                <mat-slider min="1" max="30" step="1">
+                    <input matSliderThumb [(ngModel)]="statisticsNumberOfDays">
+                </mat-slider>
+                {{statisticsNumberOfDays}}
+            </div>
+        </div>
+
+
+
+        <!-- <a mat-raised-button color="accent" (click)="getStatisticsByIds()">statisticsUserSelection</a> -->
+        <div class="d-flex">
+            <a mat-raised-button color="accent" class="col-3 m-2" (click)="getSensorsAll()">get all sensors</a>
+            <a mat-raised-button color="accent" class="col-3 m-2" (click)="getRecordsAll()">get all records</a>
+            <a mat-raised-button color="accent" class="col-3 m-2" (click)="openDialog([])">opensDialog</a>
+        </div>
+
+    </mat-card>
+    <div class="col-3 align-cneter d-flex">
+        <google-map [options]="mapOptions" style="width: 100%; height: 1000px;" [width]="'200%'"
+        (centerChanged)="adjustDefaults()" id="map">
+            <map-marker [position]="markerPosition" [label]="'center'"
+            [options]="options"></map-marker>
+            <map-marker [label]="'N-' + sensor.id" [options]="options"
+            [position]="{lat: sensor.latitude, lng: sensor.longitude}"
+            *ngFor="let sensor of sensors"></map-marker>
+        </google-map>
+    </div>
+</div>
