@@ -77,6 +77,13 @@ namespace API.Controllers
         [HttpPost("add-sensor")]
         public async Task<ActionResult<SensorDto>> AddSensor([FromBody]SensorDto properties)
         {
+            if (User.Identity == null)
+            {
+                return BadRequest("Sign in required");
+            }
+
+            properties.ClientId = User.GetClientId();
+
             var sensor = await _unitOfWork.Sensors.CreateSensorAsync(properties);
 
             if (sensor.Item2)

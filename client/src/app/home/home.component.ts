@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, IterableDiffers, OnInit, ViewChild } from '@angular/core';
 import { SensorModel } from '../models/sensor.model';
 import { DevicesService } from '../services/devices.service';
 import { RecordModel } from '../models/record.model';
 import { interval } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ReportPageComponent } from '../report-page/report-page.component';
+import { GoogleMap } from '@angular/google-maps';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-home',
@@ -16,12 +18,17 @@ export class HomeComponent implements OnInit{
 
   displayedColumns: string[] = ['icon', 'report','no.', 'latitude', 'longitude',
     'recordTime', 'totalRecords', 'delete']
+  displayedColumnsDescription: string[] = ['icon-desc', 'report-desc', 'no.-desc',
+    'latitude-desc', 'longitude-desc', 'recordTime-desc', 'totalRecords-desc',
+    'delete-desc']
+  dataSource = new MatTableDataSource<SensorModel>();
   defaultLat = 41.699591;
   defaultLng = 44.788348;
   defaultDistance = 50;
   defaultNumberOfDays = 7;
   defaultRecordTimer = 60;
   defaultTotalRecords = 4;
+  @ViewChild(GoogleMap) map: GoogleMap;
 
 
   mapOptions: google.maps.MapOptions = {
@@ -30,44 +37,36 @@ export class HomeComponent implements OnInit{
     streetViewControl: false,
   }
 
-  markerPosition = { lat: this.defaultLat, lng: this.defaultLng, title: "N-1"}
   options = {
     draggable: true,
     animation: google.maps.Animation.DROP
   }
 
-  markerPosition2 = { lat: 48.87, lng: 2.5, title: "N-2"}
-
-  constructor(private devices: DevicesService, public dialog: MatDialog) {}
+  constructor(private devices: DevicesService, public dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.getSensors()
-    window.addEventListener("beforeunload",(event)=>{
-      return null;
-  })
-  }
-
-
-  onDragEnd() {
-
   }
 
   adjustDefaults() {
-
+    this.defaultLat = this.map.getCenter().lat();
+    this.defaultLng = this.map.getCenter().lng();
   }
 
   getSensors() {
     this.devices.getSensors().subscribe(response => {
       this.sensors = response
+
+      this.refresh()
       console.log(this.sensors)
     });
-
   }
 
   populateSensors() {
     this.devices.populateSensors(this.defaultLat, this.defaultLng, this.populateDistance,
       4, this.populateRecordTimer, this.populateTotalRecords).subscribe(response => {
-        this.sensors.unshift(...response) 
+        this.refresh()
+        console.log(this.sensors)
       })
   }
 
@@ -184,5 +183,36 @@ export class HomeComponent implements OnInit{
       height: '70%',
       data: records,
     });
+  }
+
+  updatePending(id: number, sensor: SensorModel) {
+    this.devices.editSensor(id, sensor).subscribe(() => {
+      console.log('updating')
+    })
+  }
+
+  onDragEnd(id: number, event: google.maps.MapMouseEvent) {
+    let sensor = this.sensors.find(x => x.id == id);
+    sensor.latitude = event.latLng.lat();
+    sensor.longitude = event.latLng.lng();
+    this.updatePending(id, sensor)
+  }
+
+  addSensor() {
+    let sensor = new SensorModel ()
+    sensor.latitude = this.defaultLat
+    sensor.longitude = this.defaultLng
+    sensor.recordTimer = this.defaultRecordTimer
+    sensor.totalRecords = this.defaultTotalRecords
+
+    this.devices.addSensor(sensor).subscribe(response => {
+
+      this.refresh()
+      console.log(this.sensors)
+    })
+  }
+
+  refresh() {
+    this.dataSource.data = this.sensors
   }
 }
