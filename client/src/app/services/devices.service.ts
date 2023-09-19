@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { SensorModel } from '../models/sensor.model';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map, take, timer } from 'rxjs';
+import { map, take, timer } from 'rxjs';
 import { RecordModel } from '../models/record.model';
 
 @Injectable({
@@ -56,15 +56,16 @@ export class DevicesService {
   }
 
   addSensor(sensor: SensorModel) {
-    let result;
-
-    this.http.post<SensorModel>(this.baseUrl + 'add-sensors', sensor).pipe(
-      take(1)).subscribe(response => result = response)
-    return result;
+    return this.http.post<SensorModel>(this.baseUrl + 'add-sensor', sensor).pipe(
+      take(1),
+      map(response => {
+        this.sensors.unshift(response)
+        return response
+      }))
   }
 
   editSensor(id: number, sensor: SensorModel) {
-    return this.http.post<SensorModel>(this.baseUrl + id + '/edit-sensors', sensor).pipe(
+    return this.http.post<SensorModel>(this.baseUrl + id + '/edit-sensor', sensor).pipe(
       take(1))
   }
 
